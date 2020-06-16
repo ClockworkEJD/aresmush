@@ -9,7 +9,7 @@ module AresMUSH
             end
 
             def handle 
-                Scenes.recent_scenes.map { |s| "#{s.id} #{s.title} #{s.plot ? s.plot.title : "---"}".join "\n"
+                Scenes.recent_scenes.map { |s| "#{s.id} #{s.title} #{s.plot ? s.plot.title : "---" }" }.join "\n" 
                 client.emit
             end
         end
