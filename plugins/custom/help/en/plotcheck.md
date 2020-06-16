@@ -1,5 +1,5 @@
 ---
-toc: -admin- Managing the Game
+toc: ~admin~ Managing the Game
 summary: Checking that scenes have plots associated with them.
 ---
 # Plot Check
