@@ -1,5 +1,5 @@
 module AresMUSH
     class Character
-        attribute :powers, :type => DataType::Hash, :default => {}
+        attribute :powers
     end
 end
