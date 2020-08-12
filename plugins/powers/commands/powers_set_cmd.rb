@@ -6,7 +6,7 @@ module AresMUSH
             attr_accessor :name, :power_name, :description
               
             def parse_args
-                if (Chargen.can_approve?(enactor) && cmd.args =~ /\//)
+                if (cmd.args =~ /\//)
                     args = cmd.parse_args(ArgParser.arg1_equals_arg2_slash_arg3)
             
                     self.name = titlecase_arg(args.arg1)
@@ -27,7 +27,12 @@ module AresMUSH
         
             def handle
                 ClassTargetFinder.with_a_character(self.name, client, enactor) do |model|
-                    if (enactor.name == model.name || Chargen.can_approve?(enactor))
+                    if (enactor.name == model.name && !Chargen.check_chargen_locked(enactor))
+                        powers = model.powers || {}
+                        powers[self.power_name] = self.description
+                        model.update(powers: powers)
+                        client.emit_success t('powers.power_set')
+                    elsif Chargen.can_approve?(enactor)
                         powers = model.powers || {}
                         powers[self.power_name] = self.description
                         model.update(powers: powers)
