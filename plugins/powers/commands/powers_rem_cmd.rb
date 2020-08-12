@@ -6,7 +6,7 @@ module AresMUSH
             attr_accessor :name, :power_name
               
             def parse_args
-                if (Chargen.can_approve?(enactor) && cmd.args =~ /.+=.+/)
+                if (cmd.args =~ /.+=.+/)
                     args = cmd.parse_args(ArgParser.arg1_equals_arg2)
             
                     self.name = titlecase_arg(args.arg1)
