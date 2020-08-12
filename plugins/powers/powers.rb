@@ -23,7 +23,7 @@ module AresMUSH
                 return PowersCmd
                 end
             end
-            Return nil
+            nil
         end
 
     end

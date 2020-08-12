@@ -7,7 +7,7 @@ module AresMUSH
             def initialize(char, powers)
                 @char = char
                 @powers = powers
-                super file.dirname(__FILE__) + "/powers.erb"
+                super File.dirname(__FILE__) + "/powers.erb"
             end 
         end
     end
