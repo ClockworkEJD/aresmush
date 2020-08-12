@@ -1,6 +1,0 @@
----
-en:
-  powers: 
-    power_set: "Power set."
-    powers_title: "Powers - %{name}"
-    power_removed: "Power removed."
