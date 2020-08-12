@@ -10,7 +10,7 @@ module AresMUSH
             end
 
             def required_args
-                [ self.name, self.advantages ]
+                [ self.name ]
             end
 
             def handle 
