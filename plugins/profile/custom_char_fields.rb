@@ -6,7 +6,7 @@ module AresMUSH
       # Note: Viewer may be nil if someone's looking at the character page without being logged in
       # Example: return { goals: Website.format_markdown_for_html(char.goals) }
       def self.get_fields_for_viewing(char, viewer)
-        return {}
+        return { powers: Website.format_markdown_for_html(char.powers)}
       end
     
       # Return a hash of custom fields formatted for editing in the profile editor
