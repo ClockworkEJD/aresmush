@@ -23,11 +23,16 @@ module AresMUSH
         
             def handle
                 ClassTargetFinder.with_a_character(self.name, client, enactor) do |model|
-                    if (enactor.name == model.name || Chargen.can_approve?(enactor))
+                    if (enactor.name == model.name && Chargen.check_chargen_locked(enactor))
                         powers = model.powers || {}
                         powers.delete self.power_name
                         model.update(powers: powers)
                         client.emit_success t('powers.power_removed')
+                    elseif Chargen.can_approve?(enactor)
+                        powers = model.powers || {}
+                        powers.delete self.power_name
+                        model.update(powers: powers)
+                        client.emit_success t('powers.power_removed')                   
                     else
                     client.emit_failure t('dispatcher.not_allowed')
                     end
