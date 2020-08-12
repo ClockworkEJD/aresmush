@@ -1,10 +1,10 @@
 en:
   eshtraits:
     powers_set: "Powers set."
-    powers_rem: "Powers removed."
+    powers_cleared: "Powers cleared."
     skills_set: "Skills set."
-    skills_rem: "Skills removed."
+    skills_cleared: "Skills cleared."
     advantages_set: "Advantages set."
-    advantages_rem: "Advantages removed."
+    advantages_cleared: "Advantages cleared."
     flaws_set: "Flaws set."
-    flaws_rem: "Flaws removed."
+    flaws_cleared: "Flaws cleared."
