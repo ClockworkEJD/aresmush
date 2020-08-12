@@ -29,7 +29,7 @@ module AresMUSH
                 ClassTargetFinder.with_a_character(self.name, client, enactor) do |model|
                     if (enactor.name == model.name || Chargen.can_approve?(enactor))
                         powers = model.powers || {}
-                        powers[self.powre_name] = self.description
+                        powers[self.power_name] = self.description
                         model.update(powers: powers)
                         client.emit_success t('powers.power_set')
                     else
