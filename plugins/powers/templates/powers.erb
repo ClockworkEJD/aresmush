@@ -1,9 +1,9 @@
 %lh
 <%= t('powers.powers_title', :name => @char.name) %>
-
-<% @powers.sort.each do |name, desc| %>
 %ld
-%xh<%= name %>%xn
+<% @powers.sort.each do |name, desc| %>
+%xh<%= name %>:%xn
 <%= desc %>
 <% end %>
+
 %lf
