@@ -27,10 +27,10 @@ module AresMUSH
                 ClassTargetFinder.with_a_character(self.name, client, enactor) do |model|
                     if (enactor.name == model.name && !Chargen.check_chargen_locked(enactor))
                         model.update(skills: self.skills)
-                        client.emit_success t('eshtraits.skill_set')
+                        client.emit_success t('eshtraits.skills_set')
                     elsif (Chargen.can_approve?(enactor))
                         model.update(skills: self.skills)
-                        client.emit_success t('eshtraits.skill_set')
+                        client.emit_success t('eshtraits.skills_set')
                     else
                         client.emit_failure t('dispatcher.not_allowed')
                     end
