@@ -3,7 +3,7 @@ module AresMUSH
         class FlawsCmd
             include CommandHandler
 
-            attr_accessor :flaws 
+            attr_accessor :name, :flaws 
 
             def parse_args
                 self.name = cmd.args || enactor_name

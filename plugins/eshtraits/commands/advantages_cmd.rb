@@ -3,7 +3,7 @@ module AresMUSH
         class AdvantagesCmd
             include CommandHandler
 
-            attr_accessor :advantages 
+            attr_accessor :name, :advantages 
 
             def parse_args
                 self.name = cmd.args || enactor_name

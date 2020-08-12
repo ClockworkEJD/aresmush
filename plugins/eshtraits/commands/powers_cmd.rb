@@ -3,7 +3,7 @@ module AresMUSH
         class PowersCmd
             include CommandHandler
 
-            attr_accessor :powers 
+            attr_accessor :name, :powers 
 
             def parse_args
                 self.name = cmd.args || enactor_name

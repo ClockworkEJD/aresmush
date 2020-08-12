@@ -3,7 +3,7 @@ module AresMUSH
         class SkillsCmd
             include CommandHandler
 
-            attr_accessor :skills 
+            attr_accessor :name, :skills 
 
             def parse_args
                 self.name = cmd.args || enactor_name
