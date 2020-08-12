@@ -17,7 +17,7 @@ module AresMUSH
                 ClassTargetFinder.with_a_character(self.name, client, enactor) do |model|
                     if (enactor.name == model.name && !Chargen.check_chargen_locked(enactor))
                         model.update(powers: nil)
-                        client.emit_success t('eshtraits.advantages_cleared')
+                        client.emit_success t('eshtraits.powers_cleared')
                     elsif (Chargen.can_approve?(enactor))
                         model.update(powers: nil)
                         client.emit_success t('eshtraits.powers_cleared')
