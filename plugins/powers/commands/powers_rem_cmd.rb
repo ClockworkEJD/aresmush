@@ -28,7 +28,7 @@ module AresMUSH
                         powers.delete self.power_name
                         model.update(powers: powers)
                         client.emit_success t('powers.power_removed')
-                    elseif Chargen.can_approve?(enactor)
+                    elsif Chargen.can_approve?(enactor)
                         powers = model.powers || {}
                         powers.delete self.power_name
                         model.update(powers: powers)
