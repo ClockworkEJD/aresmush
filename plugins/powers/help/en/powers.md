@@ -7,11 +7,11 @@ summary: Setting pwers.
 
 You can set powers with their descriptions on your character.
 
-`powers <name>` - Lists traits for a character.
+`powers <name>` - Lists powers for a character.
 `powers/set <title>=<description>` - Sets a power.
 `powers/rem <title>` - Removes a power.
 
-Admins with the `manage_apps` permission can set other peoples' traits:
+Admins with the `manage_apps` permission can set other peoples' powers:
 
 `powers/rem <name>=<title>`
 `powers/set <name>=<title>/<description>`
