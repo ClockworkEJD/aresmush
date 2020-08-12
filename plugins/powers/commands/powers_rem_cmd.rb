@@ -23,7 +23,7 @@ module AresMUSH
         
             def handle
                 ClassTargetFinder.with_a_character(self.name, client, enactor) do |model|
-                    if (enactor.name == model.name && Chargen.check_chargen_locked(enactor))
+                    if (enactor.name == model.name && !Chargen.check_chargen_locked(enactor))
                         powers = model.powers || {}
                         powers.delete self.power_name
                         model.update(powers: powers)
