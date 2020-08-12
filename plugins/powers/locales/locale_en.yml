@@ -1,0 +1,6 @@
+---
+en:
+  powers: 
+    power_added: "Power added."
+    powers_title: "Powers - %{name}"
+    power_removed: "Power removed."
