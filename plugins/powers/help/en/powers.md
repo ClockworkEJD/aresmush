@@ -13,5 +13,5 @@ You can set powers with their descriptions on your character.
 
 Admins with the `manage_apps` permission can set other peoples' powers:
 
-`powers/rem <name>=<title>`
-`powers/set <name>=<title>/<description>`
+`powers/rem <name>=<title>` - Removes a power from another character.
+`powers/set <name>=<title>/<description>` - Sets a power on another character.
