@@ -55,7 +55,7 @@ module AresMUSH
         flawsmsg = t('chargen.oops_missing', :missing => "Flaws")
       end
 
-      return (Chargen.format_review_status "\nChecking powers.", powersmsg) + (Chargen.format_review_status "\nChecking skills.", skillsmsg) + (Chargen.format_review_status "\nChecking advantages.", advmsg) + (Chargen.format_review_status "\nChecking Flaws.", flawsmsg)
+      return (Chargen.format_review_status "\nChecking Powers.", powersmsg) + (Chargen.format_review_status "\nChecking Skills.", skillsmsg) + (Chargen.format_review_status "\nChecking Advantages.", advmsg) + (Chargen.format_review_status "\nChecking Flaws.", flawsmsg)
 
     end
   end
