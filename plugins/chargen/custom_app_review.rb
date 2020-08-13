@@ -23,10 +23,10 @@ module AresMUSH
       # You can also use other built-in chargen status messages, like t('chargen.not_set').  
       # See https://www.aresmush.com/tutorials/config/chargen.html for details.
 
-      powers = char.custom("powers")
-      skills = char.custom("skills")
-      advantages = char.custom("advantages")
-      flaws = char.custom("flaws")
+      powers = char.powers
+      advantages = char.advantages 
+      skills = char.skills
+      flaws = char.flaws
 
       if (powers.length > 0)
         msg = t('chargen.ok')
