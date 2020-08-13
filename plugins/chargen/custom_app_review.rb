@@ -34,11 +34,15 @@ module AresMUSH
         msg = t('chargen.oops_missing', :missing => "Powers")
       end
 
+      return Chargen.format_review_status "Checking powers.", msg
+
       if (skills.length > 0)
         msg = t('chargen.ok')
       else
         msg = t('chargen.oops_missing', :missing => "Skills")
       end
+
+      return Chargen.format_review_status "Checking skills.", msg
 
       if (advantages.length > 0)
         msg = t('chargen.ok')
@@ -46,11 +50,15 @@ module AresMUSH
         msg = t('chargen.oops_missing', :missing => "Advantages")
       end
 
+      return Chargen.format_review_status "Checking advantages.", msg
+
       if (flaws.length > 0)
         msg = t('chargen.ok')
       else
         msg = t('chargen.oops_missing', :missing => "Flaws")
       end
+
+      return Chargen.format_review_status "Checking Flaws.", msg
 
     end
   end
