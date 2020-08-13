@@ -24,41 +24,44 @@ module AresMUSH
       # See https://www.aresmush.com/tutorials/config/chargen.html for details.
 
       powers = char.powers
-      advantages = char.advantages 
-      skills = char.skills
-      flaws = char.flaws
 
       if (powers.length > 0)
-        msg = t('chargen.ok')
+        powersmsg = t('chargen.ok')
       else
-        msg = t('chargen.oops_missing', :missing => "Powers")
+        powersmsg = t('chargen.oops_missing', :missing => "Powers")
       end
 
-      return Chargen.format_review_status "Checking powers.", msg
+      return Chargen.format_review_status "Checking powers.", powersmsg
+
+      skills = char.skills
 
       if (skills.length > 0)
-        msg = t('chargen.ok')
+        skillsmsg = t('chargen.ok')
       else
-        msg = t('chargen.oops_missing', :missing => "Skills")
+        skillsmsg = t('chargen.oops_missing', :missing => "Skills")
       end
 
-      return Chargen.format_review_status "Checking skills.", msg
+      return Chargen.format_review_status "Checking skills.", skillsmsg
+
+      advantages = char.advantages 
 
       if (advantages.length > 0)
-        msg = t('chargen.ok')
+        advmsg = t('chargen.ok')
       else
-        msg = t('chargen.oops_missing', :missing => "Advantages")
+        advmsg = t('chargen.oops_missing', :missing => "Advantages")
       end
 
-      return Chargen.format_review_status "Checking advantages.", msg
+      return Chargen.format_review_status "Checking advantages.", advmsg
+
+      flaws = char.flaws
 
       if (flaws.length > 0)
-        msg = t('chargen.ok')
+        flawsmsg = t('chargen.ok')
       else
-        msg = t('chargen.oops_missing', :missing => "Flaws")
+        flawsmsg = t('chargen.oops_missing', :missing => "Flaws")
       end
 
-      return Chargen.format_review_status "Checking Flaws.", msg
+      return Chargen.format_review_status "Checking Flaws.", flawsmsg
 
     end
   end
