@@ -31,8 +31,6 @@ module AresMUSH
         powersmsg = t('chargen.oops_missing', :missing => "Powers")
       end
 
-      return Chargen.format_review_status "Checking powers.", powersmsg
-
       skills = char.skills
 
       if (skills.length > 0)
@@ -40,8 +38,6 @@ module AresMUSH
       else
         skillsmsg = t('chargen.oops_missing', :missing => "Skills")
       end
-
-      return Chargen.format_review_status "Checking skills.", skillsmsg
 
       advantages = char.advantages 
 
@@ -51,8 +47,6 @@ module AresMUSH
         advmsg = t('chargen.oops_missing', :missing => "Advantages")
       end
 
-      return Chargen.format_review_status "Checking advantages.", advmsg
-
       flaws = char.flaws
 
       if (flaws.length > 0)
@@ -61,7 +55,7 @@ module AresMUSH
         flawsmsg = t('chargen.oops_missing', :missing => "Flaws")
       end
 
-      return Chargen.format_review_status "Checking Flaws.", flawsmsg
+      return Chargen.format_review_status "Checking powers.", powersmsg, \n, Chargen.format_review_status "Checking skills.", skillsmsg, \n, Chargen.format_review_status "Checking advantages.", advmsg, \n, Chargen.format_review_status "Checking Flaws.", flawsmsg
 
     end
   end
