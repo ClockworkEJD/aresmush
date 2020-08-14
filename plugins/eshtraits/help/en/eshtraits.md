@@ -4,6 +4,9 @@ summary: Setting traits.
 ---
 
 # ESH Traits
+You can view each of the different types of traits separately or view them all together using the sheet command.
+
+`sheet <name>` - Displays all of the traits sections below.
 
 You can set various traits on your character.
 
