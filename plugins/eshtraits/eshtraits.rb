@@ -46,7 +46,7 @@ module AresMUSH
                     return FlawsCmd
                 end
             when "sheet"
-                return SheetCMD
+                return SheetCmd
             end
         end
 
