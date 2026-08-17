@@ -13,7 +13,9 @@ module AresMUSH
       # @example
       #    return { goals: Website.format_markdown_for_html(char.goals) }
       def self.get_fields_for_viewing(char, viewer)
-        return {}
+        return {
+            dotcount: Dotcount.web_dotcount(char.name)
+        }
       end
     
       # Gets custom fields for the character profile editor.
@@ -26,7 +28,9 @@ module AresMUSH
       # @example
       #    return { goals: Website.format_input_for_html(char.goals) }
       def self.get_fields_for_editing(char, viewer)
-        return {}
+        return {
+          looking_for_rp_announce: char.looking_for_rp_announce == "on" ? true : false ,
+        }
       end
 
       # Gets custom fields for character creation (chargen).
