@@ -100,9 +100,11 @@ module AresMUSH
       when "tos"
         case cmd.switch
         when "agree"
-          return TosCmd
+          return TosAgreeCmd
         when "reset"
           return TosResetCmd
+        else
+          return TosCmd
         end
       when "tour"
         return TourCmd
@@ -155,10 +157,14 @@ module AresMUSH
         return LoginInfoRequestHandler
       when "register"
         return RegisterRequestHandler
+      when "tour"
+        return TourRequestHandler        
       when "updateAccountInfo"
         return UpdateAccountInfoRequestHandler
       when "changePassword"
         return ChangePasswordRequestHandler
+      when "resetPassword"
+        return ResetPasswordRequestHandler
       when "accountInfo"
         return AccountInfoRequestHandler
       when "loginNotices"
@@ -177,6 +183,10 @@ module AresMUSH
         return BanPlayerRequestHandler
       when "bootPlayer"
         return BootPlayerRequestHandler
+      when "saveMotd"
+        return SaveMotdRequestHandler
+      when "editMotd"
+        return EditMotdRequestHandler
       end
       nil
     end

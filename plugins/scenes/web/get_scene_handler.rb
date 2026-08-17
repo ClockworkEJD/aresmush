@@ -2,8 +2,8 @@ module AresMUSH
   module Scenes
     class GetSceneRequestHandler
       def handle(request)
-        scene = Scene[request.args[:id]]
-        edit_mode = (request.args[:edit_mode] || "").to_bool
+        scene = Scene[request.args['id']]
+        edit_mode = (request.args['edit_mode'] || "").to_bool
         enactor = request.enactor
 
         error = Website.check_login(request, !edit_mode)
@@ -38,7 +38,7 @@ module AresMUSH
         
         participants = scene.participants.to_a
             .sort_by {|p| p.name }
-            .map { |p| { name: p.name, id: p.id, icon: Website.icon_for_char(p), is_ooc: p.is_admin? || p.is_playerbit?  }}
+            .map { |p| { name: p.name, id: p.id, avatar: Website.avatar_info(p), is_ooc: p.is_admin? || p.is_playerbit?  }}
             
         {
           id: scene.id,
@@ -49,11 +49,11 @@ module AresMUSH
           date_created: OOCTime.local_short_timestr(enactor, scene.created_at),
           summary: summary,
           content_warning: scene.content_warning,
-          tags: scene.content_tags,
+          tags: edit_mode ? scene.content_tags.join(" ") : scene.content_tags,
           icdate: scene.icdate,
           participants: participants,
           limit: scene.limit,
-          privacy: scene.completed ? "Open" : (scene.private_scene ? "Private" : "Open"),
+          privacy: scene.shared ? "Open" : (scene.private_scene ? "Private" : "Open"),
           scene_type: scene.scene_type ? scene.scene_type.titlecase : 'unknown',
           scene_pacing: scene.scene_pacing,
           log: log,

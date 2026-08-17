@@ -2,8 +2,8 @@ module AresMUSH
   module Scenes
     class PlotRequestHandler
       def handle(request)
-        edit_mode = (request.args[:edit_mode] || "").to_bool
-        plot = Plot[request.args[:id]]
+        edit_mode = (request.args['edit_mode'] || "").to_bool
+        plot = Plot[request.args['id']]
         enactor = request.enactor
         
         if (!plot)
@@ -21,14 +21,14 @@ module AresMUSH
           summary = Website.format_markdown_for_html(plot.summary)
         end
         
-        scenes = plot.sorted_scenes.select { |s| s.shared }
+        scenes = plot.sorted_scenes
             .sort_by { |s| s.icdate || s.created_at }
             .reverse
             .map { |s|  Scenes.build_scene_summary_web_data(s) }
             
         storytellers = plot.storytellers.to_a
             .sort_by {|storyteller| storyteller.name }
-            .map { |storyteller| { name: storyteller.name, id: storyteller.id, icon: Website.icon_for_char(storyteller), is_ooc: storyteller.is_admin? || storyteller.is_playerbit?  }}
+            .map { |storyteller| { name: storyteller.name, id: storyteller.id, avatar: Website.avatar_info(storyteller), is_ooc: storyteller.is_admin? || storyteller.is_playerbit?  }}
                         
         {
           id: plot.id,
@@ -38,7 +38,7 @@ module AresMUSH
           start_date: plot.start_date,
           end_date: plot.end_date,
           completed: plot.completed,
-          tags: plot.content_tags,
+          tags: edit_mode ? plot.content_tags.join(" ") : plot.content_tags,
           content_warning: plot.content_warning,
           scenes: {
             scenes: scenes,

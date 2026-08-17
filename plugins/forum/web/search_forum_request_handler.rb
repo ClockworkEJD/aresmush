@@ -3,9 +3,9 @@ module AresMUSH
     class SearchForumRequestHandler
       def handle(request)
 
-        search_title = (request.args[:searchTitle] || "").strip
-        search_text = (request.args[:searchText] || "").strip
-        search_author = (request.args[:searchAuthor] || "").strip
+        search_title = (request.args['searchTitle'] || "").strip
+        search_text = (request.args['searchText'] || "").strip
+        search_author = (request.args['searchAuthor'] || "").strip
         
         enactor = request.enactor
         
@@ -36,7 +36,7 @@ module AresMUSH
                      date: p.created_date_str(enactor),
                      author: { 
                         name: p.author_name, 
-                        icon: p.author ? Website.icon_for_char(p.author) : nil },
+                        avatar: p.author ? Website.avatar_info(p.author) : nil },
                      last_activity: p.last_activity_time_str(enactor)
                    }}
       end

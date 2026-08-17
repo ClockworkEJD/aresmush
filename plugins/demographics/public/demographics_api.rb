@@ -132,9 +132,8 @@ module AresMUSH
     end
     
     def self.set_birthday(model, date_str)
-      begin
-        bday = Date.strptime(date_str, Global.read_config("datetime", "short_date_format"))
-      rescue
+      bday = OOCTime.parse_date(date_str)
+      if (!bday)
         return { error: t('demographics.invalid_birthdate', 
            :format_str => Global.read_config("datetime", "date_entry_format_help")) }
       end
@@ -179,7 +178,6 @@ module AresMUSH
             value: "#{char.demographic(d)}"
           }
       end
-      puts props
       {
         demographics: demographics,
         genders: Demographics.genders
@@ -187,7 +185,7 @@ module AresMUSH
     end
     
     def self.save_web_profile_data(char, enactor, args)            
-      args[:demographics].each do |name, value|
+      args['demographics'].each do |name, value|
         if (value.blank? && Demographics.required_demographics.include?(name))
           return t('webportal.missing_required_field', :name => name) 
         end
@@ -229,7 +227,7 @@ module AresMUSH
     end
     
     def self.build_web_groups_data(char)
-      groups = Demographics.all_groups.keys.sort.map { |g| 
+      groups = Demographics.all_groups.keys.map { |g| 
         {
           name: g.titleize,
           value: char.group(g)

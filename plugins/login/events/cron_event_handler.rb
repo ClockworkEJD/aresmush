@@ -3,7 +3,7 @@ module AresMUSH
     class CronEventHandler
       def on_event(event)
         # Ping on every cron event
-        Global.client_monitor.logged_in.each do |client, char| 
+        Global.client_monitor.client_to_char_map.each do |client, char| 
           if (char.login_keepalive)
             client.ping
           end
@@ -19,6 +19,10 @@ module AresMUSH
         
         if (Cron.is_cron_match?(Global.read_config("login", "notice_cleanup_cron"), event.time))
           do_notice_cleanup_cron
+        end
+        
+        if (Cron.is_cron_match?(Global.read_config("login", "cleanup_guests_cron"), event.time))
+          do_cleanup_guest_cron
         end
       end
       
@@ -65,6 +69,25 @@ module AresMUSH
         old_notices = LoginNotice.all.select { |n| (Time.now - n.created_at) > 86400 * timeout_days } 
         Global.logger.debug "Deleting #{old_notices.count} old notices."
         old_notices.each { |n| n.delete }
+      end
+      
+      def do_cleanup_guest_cron
+        Global.logger.debug "Cleaning up old guests"
+        guest_names = Global.read_config("names", "guest") || []
+        idle_days = Global.read_config("login", "idle_guest_days") || 7
+        idle = []
+        guest_names.each do |name|
+           char = Character.named(name)
+           next if !char
+           next if Login.is_online_or_on_web?(char)
+           if (Time.now - char.last_on > 86400 * idle_days)
+             idle << char
+           end
+        end
+        idle.each do |char|
+          Idle.idle_cleanup(char, "Destroy")
+          char.delete
+        end
       end
       
     end

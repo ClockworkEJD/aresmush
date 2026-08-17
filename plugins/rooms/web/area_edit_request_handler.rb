@@ -2,11 +2,11 @@ module AresMUSH
   module Rooms
     class AreaEditRequestHandler
       def handle(request)
-        id = request.args[:id]
-        name = request.args[:name]
-        desc = request.args[:description]
-        summary = request.args[:summary]
-        parent_id = request.args[:parent_id]
+        id = request.args['id']
+        name = request.args['name']
+        desc = request.args['description']
+        summary = request.args['summary']
+        parent_id = request.args['parent_id']
         enactor = request.enactor
         
         error = Website.check_login(request)
@@ -28,6 +28,10 @@ module AresMUSH
           end
         end
         
+        if (Rooms.has_parent_area(parent, area))
+          return { error: t('rooms.circular_area_parentage') }
+        end
+        
         new_area = Area.find_one_by_name(name)
         if (new_area && (new_area.id != id))
           return { error: t('rooms.area_already_exists', :name => name) }
@@ -38,7 +42,7 @@ module AresMUSH
         end
         
         if (name.blank?)
-          return { error: t('webportal.missing_required_fields') }
+          return { error: t('webportal.missing_required_fields', :fields => "name") }
         end
 
         area.update(name: name, 

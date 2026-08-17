@@ -11,15 +11,13 @@ module AresMUSH
     def self.format_recipient_indicator(recipients)
       names = []
       recipients.sort_by { |r| r.name }.each do |r|
-        client = Login.find_client(r)
+        client = Login.find_game_client(r)
         if (!client)
           if (Login.find_web_client(r))
             names << "#{r.name}#{Website.web_char_marker}"
           else
             names << "#{r.name}<#{t('global.offline_status')}>"
-          end
-        elsif (r.page_do_not_disturb)
-          names << "#{r.name}<#{t('page.dnd_status')}>"
+          end        
         elsif (r.is_afk?)
           names << "#{r.name}<#{t('global.afk_status')}>"
         elsif Status.is_idle?(client)
@@ -30,27 +28,6 @@ module AresMUSH
         end
       end
       return t('page.recipient_indicator', :recipients => names.join(", "))
-    end
-    
-    # NO LONGER USED.  Keeping for reference.
-    def self.send_afk_message(client, other_client, other_char)
-      if (!other_client)
-        #client.emit_ooc t('page.recipient_is_offline', :name => other_char.name)
-        return
-      elsif (other_char.is_afk)
-        afk_message = ""
-        if (other_char.afk_display)
-          afk_message = "(#{other_char.afk_display})"
-        end
-        afk_message = t('page.recipient_is_afk', :name => other_char.name, :message => afk_message)
-        client.emit_ooc afk_message
-        other_client.emit_ooc afk_message
-      elsif (Status.is_idle?(other_client))
-        time = TimeFormatter.format(other_client.idle_secs)
-        afk_message = t('page.recipient_is_idle', :name => other_char.name, :time => time)
-        client.emit_ooc afk_message
-        other_client.emit_ooc afk_message
-      end
     end
   
     def self.page_color(char)
@@ -86,10 +63,10 @@ module AresMUSH
       end
       Page.mark_thread_read(thread, enactor)
       
-      # Send to the recipients.
+      # Send to the recipients currently in game.
       recipients.each do |recipient|
-        recipient_client = Login.find_client(recipient)
-        if (recipient_client && !recipient.page_do_not_disturb)
+        recipient_client = Login.find_game_client(recipient)
+        if (recipient_client)
           recipient_client.emit t('page.to_recipient', 
             :pm => Page.format_page_indicator(recipient),
             :autospace => Scenes.format_autospace(enactor, recipient.page_autospace), 
@@ -97,9 +74,6 @@ module AresMUSH
             :message => message)
           Page.mark_thread_read(thread, recipient)
         end
-        #if (client)
-        #  Page.send_afk_message(client, recipient_client, recipient)
-        #end
       end
 
       everyone.each do |char| 
@@ -117,15 +91,15 @@ module AresMUSH
             id: thread.id,
             key: thread.id,
             title: thread.title_customized(char),
-            author: {name: enactor.name, icon: Website.icon_for_char(enactor), id: enactor.id},
+            author: {name: enactor.name, avatar: Website.avatar_info(enactor), id: enactor.id},
             message: Website.format_markdown_for_html(message),
 	    poseable_chars: Page.build_poseable_web_chars_data(char, thread),
             message_id: page_message.id,
             is_page: true
           }
-          clients = Global.client_monitor.clients.select { |client| client.web_char_id == char.id }
+          clients = Global.client_monitor.web_clients.select { |client| client.char_id == char.id }
           clients.each do |client|
-            client.web_notify :new_page, "#{data.to_json}", true
+            client.send_web_notification :new_page, "#{data.to_json}", true
           end
         end
       end
@@ -135,6 +109,35 @@ module AresMUSH
     
     def self.find_thread(chars)
       PageThread.all.select { |t| (t.characters.map { |c| c.id }.sort == chars.map { |c| c.id }.sort) }.first
+    end
+    
+    def self.get_receipients(names, enactor)
+      recipients = []        
+      
+      names.each do |name|
+        char = Character.find_one_by_name(name)
+        if (!char)
+          return { error:  t('page.invalid_recipient', :name => name) }
+        end
+                
+        if (char.has_page_blocked?(enactor) || char.page_do_not_disturb)
+          return { error: t('page.recipient_do_not_disturb', :name => name) }
+        end
+        
+        if (enactor.has_page_blocked?(char))
+          return { error: t('page.cant_page_someone_you_blocked', :name => name) }
+        end
+        
+        if (char != enactor)
+          recipients << char
+        end
+      end
+      
+      if recipients.count == 0
+        return { error: t('page.cant_page_just_yourself') }
+      end
+      
+      return { error: nil, recipients: recipients }
     end
     
     def self.thread_for_names(names, enactor)
@@ -165,10 +168,11 @@ module AresMUSH
     end
     
     def self.mark_thread_unread(thread, except_for_char = nil)
-      chars = Character.all.select { |c| !Page.is_thread_unread?(thread, c) }
-      chars.each do |char|
-        next if except_for_char && char == except_for_char
-        tracker = char.get_or_create_read_tracker
+      
+      trackers = ReadTracker.all.select { |r| !r.is_page_thread_unread?(thread) }
+      trackers.each do |tracker|
+        char = tracker.character
+        next if except_for_char && AresCentral.is_alt?(char, except_for_char)
         tracker.mark_page_thread_unread(thread)
       end
     end
@@ -188,6 +192,17 @@ module AresMUSH
       Jobs.create_job(Jobs.trouble_category, t('page.page_reported_title'), body, Game.master.system_character)
     end
     
+    def self.delete_page_thread(thread, skip_notifying_char = nil)
+      thread.characters.each do |char|
+        next if char == skip_notifying_char
+        
+        title = thread.title_customized(char)
+        messages = thread.page_messages.map { |msg| "[#{OOCTime.local_long_timestr(char, msg.created_at)}] #{msg.message}"}
+        body = "#{t('page.deleted_thread_mail_body')}%R%R#{messages.join("%R")}"
+        Mail.send_mail([char.name], t('page.deleted_thread_mail_title', :title => title), body, nil, Game.master.system_character)
+      end
+      thread.delete
+    end
     
     def self.build_page_web_data(thread, enactor, lazy_load = false)
       if (lazy_load)
@@ -199,12 +214,14 @@ module AresMUSH
             timestamp: OOCTime.local_short_date_and_time(enactor, p.created_at),
             author: {
               name: p.author_name,
-              icon: p.author ? Website.icon_for_char(p.author) : nil }
+              avatar: p.author ? Website.avatar_info(p.author) : nil }
             }}        
       end
       
       
       is_hidden = thread.is_hidden?(enactor)
+      is_unread = Page.is_thread_unread?(thread, enactor)
+      
       {
          key: thread.id,
          title: thread.title_customized(enactor),
@@ -213,14 +230,14 @@ module AresMUSH
          can_talk: true,
          muted: false,
          is_page: true,
-         new_messages: Page.is_thread_unread?(thread, enactor) ? 1 : nil,
+         new_messages:  is_unread ? 1 : nil,
          last_activity: thread.last_activity,
-         is_recent: !is_hidden && (thread.last_activity ? (Time.now - thread.last_activity < (86400 * 2)) : false),
+         is_recent: !is_hidden && (is_unread || (thread.last_activity ? (Time.now - thread.last_activity < (86400 * 2)) : false)),
          is_hidden: is_hidden,
          who: thread.characters.map { |c| {
           name: c.name,
           ooc_name: c.ooc_name,
-          icon: Website.icon_for_char(c),
+          avatar: Website.avatar_info(c),
           muted: false
          }},
          poseable_chars: Page.build_poseable_web_chars_data(enactor, thread),
@@ -235,7 +252,7 @@ module AresMUSH
         .sort_by { |a| [ a.name == enactor.name ? 0 : 1, a.name ]}
         .map { |a| {
                  name: a.name,
-                 icon: Website.icon_for_char(a),
+                 avatar: Website.avatar_info(a),
                  id: a.id
                }}
     end

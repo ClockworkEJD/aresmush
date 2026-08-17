@@ -13,6 +13,10 @@ module AresMUSH
       Global.read_config("fs3combat", "weapon specials")
     end
     
+    def self.weapon_types
+       ['explosive', 'ranged', 'melee', 'suppressive']
+     end
+     
     def self.weapon_stat(name_with_specials, stat)
       return nil if !name_with_specials
       
@@ -97,7 +101,8 @@ module AresMUSH
     end
 
     def self.vehicle(name)
-      FS3Combat.vehicles.select { |k, v| k.upcase == name.upcase}.values.first
+      name_upcase = name ? name.upcase : nil
+      FS3Combat.vehicles.select { |k, v| k.upcase == name_upcase}.values.first
     end
     
     def self.vehicle_stat(name, stat)
@@ -110,7 +115,8 @@ module AresMUSH
     end
     
     def self.mount(name)
-      FS3Combat.mounts.select { |k, v| k.upcase == name.upcase}.values.first
+      name_upcase = name ? name.upcase : nil
+      FS3Combat.mounts.select { |k, v| k.upcase == name_upcase}.values.first
     end
     
     def self.mount_stat(name, stat)

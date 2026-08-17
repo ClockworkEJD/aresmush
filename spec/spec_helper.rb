@@ -66,7 +66,11 @@ end
 
 
 RSpec.configure do |c|
-  # No longer needed in rspec 3
-  #c.treat_symbols_as_metadata_keys_with_true_values = true
   c.include AresMUSH::SpecHelpers
+
+  # List each example for easier test debugging
+  # c.default_formatter = 'doc'
+  
+  $:.unshift File.join(File.dirname(__FILE__), *%w[.. engine])
+  $:.unshift File.join(File.dirname(__FILE__), *%w[.. plugins])
 end

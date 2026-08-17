@@ -2,8 +2,8 @@ module AresMUSH
   module Rooms
     class LocationRequestHandler
       def handle(request)
-        id = request.args[:id]
-        edit_mode = (request.args[:edit_mode] || "").to_bool
+        id = request.args['id']
+        edit_mode = (request.args['edit_mode'] || "").to_bool
         enactor = request.enactor
         
         error = Website.check_login(request, true)
@@ -17,7 +17,7 @@ module AresMUSH
         if (room.room_owners.any?)
           owners = room.room_owners.map { |o| {
             name: o.name, 
-            icon: Website.icon_for_char(o)
+            avatar: Website.avatar_info(o)
             }}
         else
           owners = nil
@@ -53,6 +53,8 @@ module AresMUSH
           descs: edit_mode ? Describe.get_web_descs_for_edit(room) : Describe.get_web_descs_for_display(room),
           summary: edit_mode ? Website.format_input_for_html(room.shortdesc) : Website.format_markdown_for_html(room.shortdesc),
           owners: owners,
+          icon_type: room.room_icon,
+          icon_display: Rooms.icon_display(room.room_icon),
           area: area,
           name_and_area: room.name_and_area,
           can_edit: enactor && (room.room_owners.include?(enactor) || Rooms.can_build?(enactor)),
@@ -62,7 +64,8 @@ module AresMUSH
             id: e.dest.id
             }},
           can_manage: Rooms.can_build?(enactor),
-          areas: areas
+          areas: areas,
+          icon_types: Global.read_config('rooms', 'icon_types').keys
         }
       end
       
