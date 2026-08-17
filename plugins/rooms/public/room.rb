@@ -4,20 +4,25 @@ module AresMUSH
     attribute :room_grid_y
     attribute :room_type, :default => "IC"
     attribute :room_is_foyer, :type => DataType::Boolean
+    attribute :room_icon
          
     index :room_type
         
     set :room_owners, "AresMUSH::Character"
     reference :area, "AresMUSH::Area"
     
-    before_delete :clear_exits
+    before_delete :on_delete
 
     # DEPRECATED - use 'area' instead.
     attribute :room_area
     
-    def clear_exits
+    def on_delete
+      # Remove exits leading in and out
       self.exits.each { |e| e.delete }
       self.exits_in.each { |e| e.delete }
+
+      # Boot out anyone in the room
+      Rooms.clear_chars_from_room(self)
     end
     
     def grid_x
@@ -72,7 +77,7 @@ module AresMUSH
     
     def clients
       list = []
-      Global.client_monitor.clients.each do |c|
+      Global.client_monitor.game_clients.each do |c|
         char = c.char
         if (char && char.room == self)
           list << c

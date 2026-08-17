@@ -2,13 +2,13 @@ module AresMUSH
   module Rooms
     class LocationDeleteRequestHandler
       def handle(request)
-        id = request.args[:id]
+        id = request.args['id']
         enactor = request.enactor
         
         error = Website.check_login(request)
         return error if error
         
-        request.log        
+        request.log_request       
         
         room = Room[id]
         if (!room)
@@ -17,6 +17,14 @@ module AresMUSH
         
         if (!Rooms.can_build?(enactor))
           return { error: t('dispatcher.not_allowed') }
+        end
+        
+        if (Rooms.is_special_room?(room))
+          return { error: t('manage.cannot_destroy_special_rooms') }
+        end
+        
+        if (room.scene)
+          return { error: t('manage.cannot_destroy_room_with_scene') }
         end
         
         Global.logger.info "#{enactor.name} deleted #{room.name}."

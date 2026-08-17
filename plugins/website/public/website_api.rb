@@ -4,7 +4,6 @@ module AresMUSH
       return nil if !output
         
       text = format_output_for_html(output)
-      text = text.gsub(ANSI.reset, " #{ANSI.reset}")
       allow_html = Global.read_config('website', 'allow_html_in_markdown')
       html_formatter = AresMUSH::Website::WikiMarkdownFormatter.new(!allow_html, self)
       text = html_formatter.to_html text
@@ -31,13 +30,16 @@ module AresMUSH
     end
     
     def self.avatar_info(char)
+      return {} if !char
       {
-        name: char.name,
-        nick: char.nick,
-        icon: Website.icon_for_char(char)
+        "name" => char.name,
+        "nick" => char.nick,
+        "icon" => Website.icon_for_char(char),
+        "classes" => Website::Hooks.custom_icon_classes(char) || ""
       }
     end
     
+    # NOTE: Should generally only be used in the context of avatar_info
     def self.icon_for_char(char)
       if (char)
         icon = char.profile_icon
@@ -49,11 +51,6 @@ module AresMUSH
       end
         
       icon.blank? ? nil : icon
-    end
-    
-    def self.icon_for_name(name)
-      char = Character.find_one_by_name(name)
-      Website.icon_for_char(char)
     end
     
     def self.web_char_marker
@@ -86,6 +83,11 @@ module AresMUSH
           ContentTag.create(name: t, content_type: type, content_id: id)
         end
       end
+    end
+    
+    def self.check_api_key(key)
+      return true if Website.engine_api_keys.include?(key)
+      return Game.master.player_api_keys && Game.master.player_api_keys.has_key?(key)
     end
   end
 end

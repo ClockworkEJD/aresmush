@@ -2,8 +2,8 @@ module AresMUSH
   module Events
     class EventRequestHandler
       def handle(request)
-        event_id = request.args[:event_id]
-        edit_mode = (request.args[:edit_mode] || "").to_bool
+        event_id = request.args['event_id']
+        edit_mode = (request.args['edit_mode'] || "").to_bool
         enactor = request.enactor
         
         event = Event[event_id.to_i]
@@ -32,14 +32,14 @@ module AresMUSH
           {
             char: {
                     name: s.char_name,
-                    icon: s.character ? Website.icon_for_char(s.character) : nil
+                    avatar: s.character ? Website.avatar_info(s.character) : nil
                   },
             comment: s.comment,
             author: enactor && s.character == enactor,
             can_edit: Events.can_manage_signup?(event, s.character, enactor)
             }}
         if (enactor)
-          signupChars = AresCentral.alts(enactor).map { |p| { id: p.id, name: p.name, icon: Website.icon_for_char(p) }}   
+          signupChars = AresCentral.alts(enactor).map { |p| { id: p.id, name: p.name, avatar: Website.avatar_info(p) }}   
         else
           sigupChars = []
         end
@@ -49,11 +49,11 @@ module AresMUSH
           title: event.title,
           organizer: { 
             name: event.character.name, 
-            icon: Website.icon_for_char(event.character) },
+            avatar: Website.avatar_info(event.character) },
           description: description,
           date: datetime.before(' '),
           time: datetime.after( ' '),
-          tags: event.content_tags,
+          tags: edit_mode ? event.content_tags.join(" ") : event.content_tags,
           signups: signups,
           can_manage: enactor && Events.can_manage_event?(enactor, event),
           date_entry_format: Global.read_config("datetime", 'date_entry_format_help').upcase,

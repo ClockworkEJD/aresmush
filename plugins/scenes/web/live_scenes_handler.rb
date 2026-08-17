@@ -22,8 +22,7 @@ module AresMUSH
         
         {
           active: open_scenes,
-          unshared: unshared,
-          unshared_deletion_days: Global.read_config('scenes', 'unshared_scene_deletion_days')
+          unshared: unshared
         }
   
       end
@@ -46,7 +45,7 @@ module AresMUSH
                  name: p.name,
                  nick: p.nick,
                  id: p.id, 
-                 icon: Website.icon_for_char(p), 
+                 avatar: Website.avatar_info(p), 
                  status: Website.activity_status(p),
                  online: Login.is_online?(p),
                  last_posed: s.last_posed == p }},
@@ -57,7 +56,7 @@ module AresMUSH
           updated: can_read?(enactor, s) ? OOCTime.local_long_timestr(enactor, s.last_activity) : nil,
           watching: Scenes.is_watching?(s, enactor),
           participating: Scenes.is_participant?(s, enactor),
-          last_posed: can_read?(enactor, s) && s.last_posed ? s.last_posed.name : nil,
+          last_posed: Scenes.has_alt_in_scene?(enactor, s) && s.last_posed ? s.last_posed.name : nil,
           last_pose_time_str: s.last_pose_time_str(enactor)
         }
       end

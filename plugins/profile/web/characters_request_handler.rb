@@ -2,7 +2,7 @@ module AresMUSH
   module Profile
     class CharactersRequestHandler
       def handle(request)
-        select = request.args[:select] || "approved"
+        select = request.args['select'] || "approved"
         
         if (select == "all")
           chars = Character.all.to_a
@@ -20,7 +20,7 @@ module AresMUSH
         chars.uniq.sort_by { |c| c.name }.map { |c| {
                   id: c.id,
                   name: c.name,
-                  icon: Website.icon_for_char(c)
+                  avatar: Website.avatar_info(c)
                 }}
       end
     end

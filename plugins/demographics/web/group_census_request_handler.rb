@@ -3,7 +3,7 @@ module AresMUSH
     class GroupCensusRequestHandler
       def handle(request)
                 
-        filter = (request.args[:filter] || "").titlecase
+        filter = (request.args['filter'] || "").titlecase
         title = t('demographics.group_census_title', :name => filter)
 
         if (filter == 'Gender')
@@ -27,7 +27,7 @@ module AresMUSH
             .map { |c| {
              mushname: c.name,
              name: Demographics.name_and_nickname(c),
-             icon: Website.icon_for_char(c),
+             avatar: Website.avatar_info(c),
              groups: c.groups,
              rank: c.rank
           }}

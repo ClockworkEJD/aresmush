@@ -64,7 +64,7 @@ module AresMUSH
       
       when "scene"
         case cmd.switch
-        when "all", "open"
+        when "active", "all", "open", "unshared", "profile"
           return ScenesCmd
         when nil
           if (cmd.args)
@@ -74,6 +74,8 @@ module AresMUSH
           end
         when "addchar", "removechar"
           return SceneCharCmd
+        when "addrelated", "removerelated"
+          return RelatedSceneCmd
         when "emit"
           return SceneEmitCmd
         when "home"
@@ -108,10 +110,10 @@ module AresMUSH
           return SceneReportCmd
         when "share"
           return SceneShareCmd
+        when "stats"
+          return SceneStatsCmd
         when "unshare"
           return SceneUnshareCmd
-        when "unshared"
-          return ScenesCmd
         when "webstart"
           return SceneWebStartCmd
         end
@@ -137,6 +139,8 @@ module AresMUSH
         return PoseEventHandler
       when "CharConnectedEvent"
         return CharConnectedEventHandler
+      when "CharIdledOutEvent"
+        return CharIdledOutEventHandler
       end
       nil
     end
@@ -155,6 +159,8 @@ module AresMUSH
         return CreatePlotRequestHandler
       when "createScene"
         return CreateSceneRequestHandler
+      when "customSceneData"
+        return CustomSceneDataHandler
       when "editScenePose"
         return EditScenePoseRequestHandler
       when "deleteScenePose"

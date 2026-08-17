@@ -2,7 +2,7 @@ module AresMUSH
   module Scenes
     class DeleteSceneRequestHandler
       def handle(request)
-        scene = Scene[request.args[:id]]
+        scene = Scene[request.args['id']]
         enactor = request.enactor
         
         if (!scene)
@@ -23,10 +23,9 @@ module AresMUSH
         if (scene.shared)
           return { error: t('scenes.cant_delete_shared_scene') }
         end
+                
+        Scenes.move_to_trash(scene, enactor)
         
-        Global.logger.info "Scene #{scene.id} deleted by #{enactor.name}."
-        
-        scene.delete
         {
         }
       end

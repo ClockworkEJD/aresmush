@@ -2,7 +2,7 @@ module AresMUSH
   module Places
     class ViewPlacesRequestHandler
       def handle(request)
-        scene = Scene[request.args[:scene_id]]
+        scene = Scene[request.args['scene_id']]
         
         if (!scene)
           return { error: t('webportal.not_found') }
@@ -19,7 +19,7 @@ module AresMUSH
           name: p.name,
           chars: p.characters.map { |c| {
             name: c.name,
-            icon: Website.icon_for_char(c)
+            avatar: Website.avatar_info(c)
           }}
         }}
         

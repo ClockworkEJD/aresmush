@@ -21,17 +21,12 @@ module AresMUSH
           true
         end
         
-        Global.client_monitor.clients.each do |c|
+        Global.client_monitor.all_clients.each do |c|
           c.disconnect
         end
         
         Manage.save_db
-        
-        # Don't use dispatcher here because we want a hard kill
-        EventMachine.add_timer(1) do
-          EventMachine.stop_event_loop
-          raise SystemExit.new
-        end
+        Global.shutdown
       end
     end
   end

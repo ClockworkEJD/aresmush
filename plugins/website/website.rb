@@ -23,7 +23,6 @@ module AresMUSH
     
     def self.get_cmd_handler(client, cmd, enactor)       
       
-      puts cmd
       case cmd.root      
       when "website"
         if (cmd.switch_is?("deploy"))
@@ -40,8 +39,6 @@ module AresMUSH
 
     def self.get_event_handler(event_name) 
       case event_name
-        when "WebCmdEvent"
-          return WebCmdEventHandler
         when "ConfigUpdatedEvent", "GameStartedEvent"
           return WebConfigUpdatedEventHandler
         when "CronEvent"

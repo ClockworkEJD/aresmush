@@ -24,7 +24,7 @@ module AresMUSH
                 alt_data << {
                 name: alt.name,
                 id: alt.id,
-                icon: Website.icon_for_char(alt)
+                avatar: Website.avatar_info(alt)
                 }
                 if (alt != enactor)
                   notifications += alt.unread_notifications.count
@@ -50,14 +50,18 @@ module AresMUSH
           happenings: Who::WhoRequestHandler.new.handle(request),
           recent_changes: Website.recent_changes(enactor, true, 10),
           left_sidebar: Global.read_config('website', 'left_sidebar'),
-          top_navbar: Global.read_config('website', 'top_navbar'),
+          hide_searchbox: Global.read_config('website', 'hide_searchbox'),
+          top_navbar: Website.build_top_navbar(enactor),
           registration_required: Global.read_config("login", "portal_requires_registration"),
           server_time: OOCTime.server_timestr,
           jobs_admin: Jobs.can_access_jobs?(enactor),
           token_expiry_warning: token_expiry_warning,
           motd: Game.master.login_motd ? Website.format_markdown_for_html(Game.master.login_motd) : nil,
           notification_count: notifications == 0 ? nil : notifications,
+          allow_web_tour: Login.allow_web_tour?,
+          allow_web_registration: Login.allow_web_registration?,
           alts: alt_data
+          
         }
       end
     end

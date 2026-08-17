@@ -46,17 +46,17 @@ module AresMUSH
               
       # Can't use notify_web_clients here because the notification is different for each person.
       Global.dispatcher.spawn("Scene notification", nil) do
-        clients = Global.client_monitor.clients
+        clients = Global.client_monitor.web_clients
         clients.each do |client|
-          char_id = client.web_char_id
+          char_id = client.char_id
           if (char_id && notifications.has_key?(char_id))
             web_msg = "#{scene.id}|#{character.name}|#{:new_pose}|#{notifications[char_id].to_json}"
-            client.web_notify :new_scene_activity, web_msg, true
+            client.send_web_notification :new_scene_activity, web_msg, true
           end
         end
       end
 
-      Scenes.create_new_pose_notification(scene, character.name)
+      Scenes.create_new_pose_notification(scene, character)
             
       return scene_pose
     end
@@ -66,8 +66,11 @@ module AresMUSH
         scene.invited.add char
       end
       message = t('scenes.scene_notify_invite', :name => enactor.name, :num => scene.id)
-      Login.emit_ooc_if_logged_in(char, message)        
-      Login.notify(char, :scene, message, scene.id, "", false)
+      Global.notifier.notify_ooc(:scene_message, message) do |notify_char|
+        notify_char == char
+      end
+      
+      Login.notify(char, :scene, message, scene.id)
     end
     
     def self.uninvite_from_scene(scene, char, enactor)
@@ -121,7 +124,7 @@ module AresMUSH
                       location: s.location,
                       content_warning: s.content_warning,
                       icdate: s.icdate,
-                      participants: s.participants.to_a.sort_by { |p| p.name }.map { |p| { name: p.name, id: p.id, icon: Website.icon_for_char(p) }},
+                      participants: s.participants.to_a.sort_by { |p| p.name }.map { |p| { name: p.name, id: p.id, avatar: Website.avatar_info(p) }},
                       scene_type: s.scene_type ? s.scene_type.titlecase : 'unknown',
                       scene_pacing: s.scene_pacing
       
@@ -152,5 +155,16 @@ module AresMUSH
       Scenes.new_scene_activity(scene, :status_changed, nil)
     end
     
+    def self.scene_stats()
+      data = {
+        total_scenes: Scene.all.count,
+        scenes_by_pacing: {}
+      }
+      Scene.all.map { |s| s.scene_pacing }.group_by { |s| s }.each do |k, v|
+        data[:scenes_by_pacing][k] = v.count
+      end
+      
+      data
+    end
   end
 end

@@ -4,9 +4,21 @@ module AresMUSH
       Chargen.can_manage_apps?(actor)
     end
     
+    def self.can_submit_app?(actor)
+      actor && actor.has_permission?("submit_app")
+    end
+    
     def self.bg_app_review(char)
-      error = char.background.to_s.empty? ? t('chargen.not_set') : t('chargen.ok')
-      Chargen.format_review_status t('chargen.background_review'), error
+      message = t('chargen.ok')
+      max_length = Global.read_config('chargen', 'max_bg_length') || 0
+      
+      if (char.background.blank?)
+        message = t('chargen.not_set')
+      elsif (max_length > 0 && char.background.length > max_length)
+        message = t('chargen.bg_too_long', :total => char.background.length, :max => max_length)
+      end
+      
+      Chargen.format_review_status t('chargen.background_review'), message
     end
     
     def self.can_manage_bgs?(actor)
@@ -64,12 +76,12 @@ module AresMUSH
     def self.save_char(char, chargen_data)
       alerts = []
             
-      chargen_data[:demographics].each do |k, v|
-        char.update_demographic(k, v[:value])
+      chargen_data['demographics'].each do |k, v|
+        char.update_demographic(k, v['value'])
       end
       
-      if (chargen_data[:demographics][:age])
-        age_or_bday = chargen_data[:demographics][:age][:value]
+      if (chargen_data['demographics']['age'])
+        age_or_bday = (chargen_data['demographics']['age']['value'] || "").to_s
 
         # See if it's just an age.
         if (age_or_bday.is_integer?)
@@ -91,24 +103,24 @@ module AresMUSH
         end
       end
       
-      chargen_data[:groups].each do |k, v|
-        Demographics.set_group(char, v[:name], v[:value])
+      chargen_data['groups'].each do |k, v|
+        Demographics.set_group(char, v['name'], v['value'])
       end
       
       if (Ranks.is_enabled?)
-        rank_error = Ranks.set_rank(char, chargen_data[:groups][:rank][:value])
+        rank_error = Ranks.set_rank(char, chargen_data['groups']['rank']['value'])
         if (rank_error)
           alerts << rank_error
         end
       end
       
-      char.update(cg_background: Website.format_input_for_mush(chargen_data[:background]))
-      char.update(idle_lastwill: Website.format_input_for_mush(chargen_data[:lastwill]))
+      char.update(cg_background: Website.format_input_for_mush(chargen_data['background']))
+      char.update(idle_lastwill: Website.format_input_for_mush(chargen_data['lastwill']))
       
-      char.update(rp_hooks: Website.format_input_for_mush(chargen_data[:rp_hooks]))
-      char.update(description: Website.format_input_for_mush(chargen_data[:desc]))
-      char.update(shortdesc: Website.format_input_for_mush(chargen_data[:shortdesc]))
-      char.update(profile_image: chargen_data[:profile_image].blank? ? nil : chargen_data[:profile_image])
+      char.update(rp_hooks: Website.format_input_for_mush(chargen_data['rp_hooks']))
+      char.update_desc(Website.format_input_for_mush(chargen_data['desc']))
+      char.update(shortdesc: Website.format_input_for_mush(chargen_data['shortdesc']))
+      char.update(profile_image: chargen_data['profile_image'].blank? ? nil : chargen_data['profile_image'])
       
       if FS3Skills.is_enabled?
         errors = FS3Skills.save_char(char, chargen_data)
@@ -161,24 +173,30 @@ module AresMUSH
       unless (model.on_roster? || model.is_npc?)
         Achievements.award_achievement(model, "created_character")
 
-        welcome_message = Global.read_config("chargen", "welcome_message")
-        welcome_message_args = Chargen.welcome_message_args(model)
-        post_body = welcome_message % welcome_message_args
-      
-        Forum.system_post(
-          Global.read_config("chargen", "arrivals_category"),
-          t('chargen.approval_post_subject', :name => model.name), 
-          post_body)
+        arrivals_category = Global.read_config("chargen", "arrivals_category")
+        if (!arrivals_category.blank?)
+          welcome_message = Global.read_config("chargen", "welcome_message")
+          welcome_message_args = Chargen.welcome_message_args(model)
+          post_body = welcome_message % welcome_message_args
+
+          Forum.system_post(
+            arrivals_category,
+            t('chargen.approval_post_subject', :name => model.name), 
+            post_body)
+        end
       end
       
-      Jobs.create_job(Global.read_config("chargen", "app_category"), 
-         t('chargen.approval_post_subject', :name => model.name), 
-         Global.read_config("chargen", "post_approval_message"), 
-         Game.master.system_character)
+      post_approval_msg = Global.read_config("chargen", "post_approval_message")
+      if (!post_approval_msg.blank?)
+        Jobs.create_job(Global.read_config("chargen", "app_category"), 
+           t('chargen.approval_post_subject', :name => model.name), 
+           post_approval_msg, 
+           Game.master.system_character)
+       end
       
        Chargen.custom_approval(model)
        
-       Global.dispatcher.queue_event CharApprovedEvent.new(Login.find_client(model), model.id)
+       Global.dispatcher.queue_event CharApprovedEvent.new(Login.find_game_client(model), model.id)
          
        return nil
      end
@@ -225,8 +243,8 @@ module AresMUSH
          id: char.id,
          job: char.approval_job ? char.approval_job.id : nil,
          custom: custom_app,
-         allow_web_submit: (char == enactor) && Global.read_config("chargen", "allow_web_submit"),
-         app_notes_prompt: Global.read_config("chargen", "app_notes_prompt"),
+         allow_web_submit: Global.read_config("chargen", "allow_web_submit"),
+         app_notes_prompt: Website.format_markdown_for_html(Global.read_config("chargen", "app_notes_prompt")),
          preset_responses: Jobs.preset_job_responses_for_web
        }
      end

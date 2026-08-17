@@ -3,14 +3,14 @@ module AresMUSH
     class SearchCharsRequestHandler
       def handle(request)
 
-        search_groups = request.args[:searchGroups] || {}
-        search_demographics = request.args[:searchDemographics] || {}
-        search_tag = (request.args[:searchTag] || "").strip
-        search_name = (request.args[:searchName] || "").strip
-        search_relation = (request.args[:searchRelation] || "").strip
+        search_groups = request.args['searchGroups'] || {}
+        search_demographics = request.args['searchDemographics'] || {}
+        search_tag = (request.args['searchTag'] || "").strip
+        search_name = (request.args['searchName'] || "").strip
+        search_relation = (request.args['searchRelation'] || "").strip
         
-        chars = Chargen.approved_chars
-        
+        chars = Idle.active_chars_and_npcs.select { |c| c.is_approved? }
+                
         if (!search_name.blank?)
           chars = chars.select { |c| "#{Demographics.name_and_nickname(c)} #{c.demographic('fullname')}" =~ /#{search_name}/i }
         end
@@ -44,7 +44,7 @@ module AresMUSH
         chars.sort_by { |c| c.name }.map { |c| {
                           id: c.id,
                           name: c.name,
-                          icon: Website.icon_for_char(c)
+                          avatar: Website.avatar_info(c)
                         }}
       end
     end
