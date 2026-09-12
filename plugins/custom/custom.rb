@@ -12,8 +12,6 @@ module AresMUSH
  
     def self.get_cmd_handler(client, cmd, enactor)   
       case cmd.root
-      when "dotcount"
-        return DotCountCmd
       when "plotcheck"
         return PlotcheckCmd
       when "wordcount"
